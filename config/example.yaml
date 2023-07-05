@@ -1,0 +1,75 @@
+###################################################################################################################
+############################################### User defined params ###############################################
+###################################################################################################################
+
+### analysis_name: your analysis must have a unique name. This name will be both the name of your configuration file, and the name of the folder with all analysis
+analysis_name: "<example>"
+
+
+###################################################################################################################
+###################################################################################################################
+### Intersecting peaks params
+union_peaks: 
+    atac: "<path to your DNase/ATAC/scATAC peaks>"
+    ctcf: "<path to your CTCF peaks>"
+    peak_caller: "lanceotron"
+    threshold: 0.95
+
+
+###################################################################################################################
+###################################################################################################################
+### Remove blacklist params
+remove_blacklist: 
+    bed: "blacklists/hg38.bed" #choose blacklist genome
+    
+ 
+###################################################################################################################
+###################################################################################################################
+### Multi coverages params
+multicoverages: 
+    bamH3K4me1: "<path to your H3K4me1 bam file>"
+    bamH3K4me3: "<path to your H3K4me3 bam file>"
+
+
+###################################################################################################################
+###################################################################################################################
+### Compute matrix params
+compute_matrix_bigwigs: 
+    bigwig_H3K4me1: "<path to your H3K4me1 bigwig file>"
+    bigwig_H3K4me3: "<path to your H3K4me3 bigwig file>"
+    bigwig_H3K27ac: "<path to your H3K27ac bigwig file>"
+    bigwig_CTCF: "<path to your CTCF bigwig file>"
+compute_matrix_extra:
+    referencePoint: "center"
+    b: 2000
+    a: 2000
+    sortRegions: "keep"
+    maxThreshold: 1500
+
+
+###################################################################################################################
+###################################################################################################################
+### Plot compute matrix params
+plot_compute_matrix_extra:
+    samplesLabel: "H3K4me1 H3K4me3 H3K27Ac CTCF"
+    refPointLabel: "peak.center"
+    plotTitle: "'Chromatin marks at open chromatin sites (+/- 2kb)'"
+    sortRegions: "keep"
+
+
+###################################################################################################################
+###################################################################################################################
+### Cluster regulatory elements params
+cluster_regulatory_elements:
+    range_definition: 60
+    maxThreshold: "auto"
+    plotTitle: "'Chromatin marks at open chromatin sites (+/- 2kb)'"
+
+
+###################################################################################################################
+###################################################################################################################
+### Cluster regulatory elements params
+compute_matrix_bigwigs_2:
+    bigwig: "<path to your 'EXTRA' bigwig file>" #specify 'none' if no bigwig
+    tag_extra_data_input: "'EXTRA'"
+    threshold: 0.95
