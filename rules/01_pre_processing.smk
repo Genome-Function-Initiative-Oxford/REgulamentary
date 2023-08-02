@@ -1,5 +1,7 @@
 if config["remove_blacklist"]["genome"] == "hg38":
     blacklist = "blacklists/hg38.bed"
+elif config["remove_blacklist"]["genome"] == "mm39":
+    blacklist = "blacklists/mm39.bed"
 else:
     print("other genomes not implemented yet!")
     sys.exit()

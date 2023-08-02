@@ -2,6 +2,8 @@ bw = config["compute_matrix_bigwigs_2"]["bigwig"].split("/")[-1].replace(".bw", 
 
 if config["remove_blacklist"]["genome"] == "hg38":
     tss = "TSS/TSS_hg38_strict.bed"
+elif config["remove_blacklist"]["genome"] == "mm39":
+    blacklist = "TSS/TSS_mm39_strict.bed"
 else:
     print("other genomes not implemented yet!")
     sys.exit()
