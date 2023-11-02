@@ -1,0 +1,85 @@
+###################################################################################################################
+############################################### User defined params ###############################################
+###################################################################################################################
+
+### analysis_name: your analysis must have a unique name. This name will be both the name of your configuration file, and the name of the folder with all analysis
+analysis_name: "analysis"
+
+
+###################################################################################################################
+###################################################################################################################
+### Intersecting peaks params
+union_peaks: 
+    bed_ATAC: "<path to ATAC.bed>"
+    bed_H3K4me1: "<path to H3K4me1.bed>"
+    bed_H3K4me3: "<path to H3K4me3.bed>"
+    bed_H3K27ac: "<path to H3K27ac.bed>"
+    bed_CTCF: "<path to CTCF.bed>"
+    peak_caller: "lanceotron"
+    threshold: 0.5
+
+
+###################################################################################################################
+###################################################################################################################
+### Remove blacklist params
+remove_blacklist: 
+    genome: "hg38"
+    
+ 
+###################################################################################################################
+###################################################################################################################
+### Multi coverages params
+multicoverages: 
+    bam_H3K4me1: "path to H3K4me1.bam"
+    bam_H3K4me3: "path to H3K4me3.bam"
+    bam_H3K27ac: "path to H3K27ac.bam"
+    bam_CTCF: "path to CTCF.bam"
+
+
+###################################################################################################################
+###################################################################################################################
+### Compute matrix params
+compute_matrix_bigwigs: 
+    bigwig_H3K4me1: "path to H3K4me1.bw"
+    bigwig_H3K4me3: "path to H3K4me3.bw"
+    bigwig_H3K27ac: "path to H3K27ac.bw"
+    bigwig_CTCF: "path to CTCF.bw"
+compute_matrix_extra:
+    referencePoint: "center"
+    b: 2000
+    a: 2000
+    sortRegions: "keep"
+    
+
+# ###################################################################################################################
+# ###################################################################################################################
+# ### Plot compute matrix params
+# plot_compute_matrix_extra:
+#     samplesLabel: "H3K4me1 H3K4me3 H3K27Ac CTCF"
+#     refPointLabel: "peak.center"
+#     plotTitle: "'Chromatin marks at open chromatin sites (+/- 2kb)'"
+#     sortRegions: "keep"
+
+
+# ###################################################################################################################
+# ###################################################################################################################
+# ### Cluster regulatory elements params
+# cluster_regulatory_elements:
+#     range_definition: 60
+#     maxThreshold: "auto"
+#     plotTitle: "'Chromatin marks at open chromatin sites (+/- 2kb)'"
+
+
+###################################################################################################################
+###################################################################################################################
+### Cluster regulatory elements params
+compute_matrix_bigwigs_2:
+    bed_extra: "path to extra.bed" #specify 'none' if no peak
+    bigwig_extra: "path to extra.bw" #specify 'none' if no bigwig
+    tag_extra_data_input: "EXTRA"
+    threshold: 0.5
+
+###################################################################################################################
+###################################################################################################################
+### REgulamentary threshold
+thresholdPeaks: 0.5

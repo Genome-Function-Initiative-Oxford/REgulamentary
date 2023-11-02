@@ -1,0 +1,75 @@
+$schema: "http://json-schema.org/draft-04/schema#"
+
+_yamldoc_title: Parameter Reference
+_yamldoc_description: All of the parameters available for tuning avocato may be found on this page. It is automatically generated from the general configuration template.
+
+type: object
+
+properties:
+  analysis_name: 
+    type: string
+
+  union_peaks: 
+    bed_ATAC: 
+      type: string
+    bed_H3K4me1: 
+      type: string
+    bed_H3K4me3: 
+      type: string
+    bed_H3K27ac: 
+      type: string
+    bed_CTCF: 
+      type: string
+    peak_caller: 
+      type: string
+    threshold:
+      type: number
+
+  remove_blacklist: 
+    genome: 
+      type: string
+      enum: ["hg38", "mm39"]
+
+  multicoverages: 
+    bam_H3K4me1: 
+      type: string
+    bam_H3K4me3: 
+      type: string
+    bam_H3K27ac: 
+      type: string
+    bam_CTCF: 
+      type: string
+
+  compute_matrix_bigwigs: 
+    bigwig_H3K4me1: 
+      type: string
+    bigwig_H3K4me3: 
+      type: string
+    bigwig_H3K27ac: 
+      type: string
+    bigwig_CTCF: 
+      type: string
+  compute_matrix_extra:
+    referencePoint: 
+      type: string
+      enum: ["TSS", "TES", "center"]
+    b:
+      type: number
+    a:
+      type: number
+    sortRegions: 
+      type: string
+      enum: ["descend", "ascend", "no", "keep"]
+
+  compute_matrix_bigwigs_2:
+    bed_extra: 
+      type: string
+    bigwig_extra: 
+      type: string
+    tag_extra_data_input: 
+      type: string
+    threshold:
+      type: number
+
+  thresholdPeaks:
+    type: number
