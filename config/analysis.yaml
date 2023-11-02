@@ -30,20 +30,20 @@ remove_blacklist:
 ###################################################################################################################
 ### Multi coverages params
 multicoverages: 
-    bam_H3K4me1: "path to H3K4me1.bam"
-    bam_H3K4me3: "path to H3K4me3.bam"
-    bam_H3K27ac: "path to H3K27ac.bam"
-    bam_CTCF: "path to CTCF.bam"
+    bam_H3K4me1: "<path to H3K4me1.bam>"
+    bam_H3K4me3: "<path to H3K4me3.bam>"
+    bam_H3K27ac: "<path to H3K27ac.bam>"
+    bam_CTCF: "<path to CTCF.bam>"
 
 
 ###################################################################################################################
 ###################################################################################################################
 ### Compute matrix params
 compute_matrix_bigwigs: 
-    bigwig_H3K4me1: "path to H3K4me1.bw"
-    bigwig_H3K4me3: "path to H3K4me3.bw"
-    bigwig_H3K27ac: "path to H3K27ac.bw"
-    bigwig_CTCF: "path to CTCF.bw"
+    bigwig_H3K4me1: "<path to H3K4me1.bw>"
+    bigwig_H3K4me3: "<path to H3K4me3.bw>"
+    bigwig_H3K27ac: "<path to H3K27ac.bw>"
+    bigwig_CTCF: "<path to CTCF.bw>"
 compute_matrix_extra:
     referencePoint: "center"
     b: 2000
@@ -74,8 +74,8 @@ compute_matrix_extra:
 ###################################################################################################################
 ### Cluster regulatory elements params
 compute_matrix_bigwigs_2:
-    bed_extra: "path to extra.bed" #specify 'none' if no peak
-    bigwig_extra: "path to extra.bw" #specify 'none' if no bigwig
+    bed_extra: "<path to extra.bed>" #specify 'none' if no peak
+    bigwig_extra: "<path to extra.bw>" #specify 'none' if no bigwig
     tag_extra_data_input: "EXTRA"
     threshold: 0.5
 
