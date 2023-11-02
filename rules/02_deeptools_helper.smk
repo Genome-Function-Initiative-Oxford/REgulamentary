@@ -10,12 +10,12 @@ rule compute_matrices:
         mtx2=config["analysis_name"]+os.sep+"{folder}/05_compute_matrix/readable_matrix.mtx",
         mtx3=config["analysis_name"]+os.sep+"{folder}/05_compute_matrix/sorted_regions.mtx",
     params:
-        bw=config["compute_matrix_bigwigs_2"]["bigwig"],
+        bw=config["compute_matrix_bigwigs_2"]["bigwig_extra"],
         referencePoint=config["compute_matrix_extra"]["referencePoint"],
         b=config["compute_matrix_extra"]["b"],
         a=config["compute_matrix_extra"]["a"],
         sortRegions=config["compute_matrix_extra"]["sortRegions"],
-        maxThreshold=config["compute_matrix_extra"]["maxThreshold"],
+        # maxThreshold=config["compute_matrix_extra"]["maxThreshold"],
     shell:
         """ 
             if [ {params.bw} == "none" ]
@@ -29,10 +29,8 @@ rule compute_matrices:
                     -b {params.b} \
                     -a {params.a} \
                     --sortRegions {params.sortRegions} \
-                    --maxThreshold {params.maxThreshold} \
                     --numberOfProcessors max \
-                    --missingDataAsZero \
-                    --skipZeros
+                    --missingDataAsZero
             else
                 computeMatrix reference-point --regionsFileName {input.bed} \
                     --scoreFileName {input.bw1} {input.bw2} {input.bw3} {input.bw4} {params.bw} \
@@ -43,9 +41,7 @@ rule compute_matrices:
                     -b {params.b} \
                     -a {params.a} \
                     --sortRegions {params.sortRegions} \
-                    --maxThreshold {params.maxThreshold} \
                     --numberOfProcessors max \
-                    --missingDataAsZero \
-                    --skipZeros
+                    --missingDataAsZero
             fi
         """

@@ -1,4 +1,4 @@
-bw = config["compute_matrix_bigwigs_2"]["bigwig"].split("/")[-1].replace(".bw", "")
+bw = config["compute_matrix_bigwigs_2"]["bigwig_extra"].split("/")[-1].replace(".bw", "")
 
 if config["remove_blacklist"]["genome"] == "hg38":
     tss = "TSS/TSS_hg38_strict.bed"
@@ -13,8 +13,8 @@ rule active_elements:
     output:
         config["analysis_name"]+os.sep+"{folder}/06_active_elements/lanceotron.txt",
     params:
-        bw=config["compute_matrix_bigwigs_2"]["bigwig"],
-        peak=config["compute_matrix_bigwigs_2"]["peak"],
+        bw=config["compute_matrix_bigwigs_2"]["bigwig_extra"],
+        peak=config["compute_matrix_bigwigs_2"]["bed_extra"],
         peak_folder=config["analysis_name"]+os.sep+"{folder}/06_active_elements",
         peak_folder_tmp=config["analysis_name"]+os.sep+"tmp",
     log:
@@ -50,7 +50,7 @@ rule filter_active_elements:
     run:
         import glob
         import pandas as pd
-        if config["compute_matrix_bigwigs_2"]["bigwig"] == "none":
+        if config["compute_matrix_bigwigs_2"]["bigwig_extra"] == "none":
             f = open(output[0], "w")
             f.write("skipping filter_active_elements for bigwig file missing")
             f.close()
@@ -67,7 +67,7 @@ rule clean_sorted_regions: #maybe to remove!?
     output:
         config["analysis_name"]+os.sep+"{folder}/06_active_elements/sorted_regions.bed",
     params:
-        bw=config["compute_matrix_bigwigs_2"]["bigwig"],
+        bw=config["compute_matrix_bigwigs_2"]["bigwig_extra"],
     run:
         import pandas as pd
         df = pd.read_csv(input[0], sep="\t")
@@ -84,7 +84,7 @@ rule intersect_active_elements:
     output:
         config["analysis_name"]+os.sep+"{folder}/06_active_elements/%s_L-tron_filtered_intersection.bed"%bw,
     params:
-        bw=config["compute_matrix_bigwigs_2"]["bigwig"],
+        bw=config["compute_matrix_bigwigs_2"]["bigwig_extra"],
     shell:
         """
             if [ {params.bw} == "none" ]
@@ -97,38 +97,60 @@ rule intersect_active_elements:
         
 
         
-rule plot_regulatory_elements:
+# rule plot_regulatory_elements:
+#     input:
+#         mtx=config["analysis_name"]+os.sep+"{folder}/05_compute_matrix/readable_matrix.mtx",
+#         bed1=config["analysis_name"]+os.sep+"{folder}/06_active_elements/sorted_regions.bed",
+#         #bed1=config["analysis_name"]+os.sep+"{folder}/04_sort_regions/sort_union.bed",
+#         bed2=config["analysis_name"]+os.sep+"{folder}/06_active_elements/%s_L-tron_filtered_intersection.bed"%bw,
+#     output:
+#         config["analysis_name"]+os.sep+"{folder}/07_plot_RE/mlv_deeptools.csv",
+#     params:
+#         bw=config["compute_matrix_bigwigs_2"]["bigwig_extra"],
+#         range_definition=config["cluster_regulatory_elements"]["range_definition"],
+#         tag_extra_data_input=config["compute_matrix_bigwigs_2"]["tag_extra_data_input"],
+#         maxThreshold=config["cluster_regulatory_elements"]["maxThreshold"],
+#         plotTitle=config["cluster_regulatory_elements"]["plotTitle"],
+#         folder1=config["analysis_name"]+os.sep+"{folder}/07_plot_RE/01_RE_only",
+#         folder2=config["analysis_name"]+os.sep+"{folder}/07_plot_RE/02_activity_rule",
+#         folder3=config["analysis_name"]+os.sep+"{folder}/07_plot_RE/03_activity_extra",
+#     shell:
+#         """ 
+#             python scripts/02_plot_regulatory_elements.py \
+#                 {input.mtx} \
+#                 {params.bw} \
+#                 {params.range_definition} \
+#                 {params.tag_extra_data_input} \
+#                 {params.maxThreshold} \
+#                 {params.plotTitle} \
+#                 {params.folder1} \
+#                 {params.folder2} \
+#                 {params.folder3} \
+#                 {input.bed1} \
+#                 {input.bed2} \
+#                 {output}
+#         """
+
+
+rule read_count4normalisation:
     input:
-        mtx=config["analysis_name"]+os.sep+"{folder}/05_compute_matrix/readable_matrix.mtx",
-        bed1=config["analysis_name"]+os.sep+"{folder}/06_active_elements/sorted_regions.bed",
-        #bed1=config["analysis_name"]+os.sep+"{folder}/04_sort_regions/sort_union.bed",
-        bed2=config["analysis_name"]+os.sep+"{folder}/06_active_elements/%s_L-tron_filtered_intersection.bed"%bw,
+        # sort_union = config["analysis_name"]+os.sep+"{folder}/04_sort_regions/sort_union.bed",
+        bamH3K4me1 = config["multicoverages"]["bam_H3K4me1"],
+        bamH3K4me3 = config["multicoverages"]["bam_H3K4me3"],
+        bamH3K27ac = config["multicoverages"]["bam_H3K27ac"],
+        bamCTCF = config["multicoverages"]["bam_CTCF"],
     output:
-        config["analysis_name"]+os.sep+"{folder}/07_plot_RE/mlv_deeptools.csv",
+        config["analysis_name"]+os.sep+"{folder}/07_read_count/read_count.csv",
     params:
-        bw=config["compute_matrix_bigwigs_2"]["bigwig"],
-        range_definition=config["cluster_regulatory_elements"]["range_definition"],
-        tag_extra_data_input=config["compute_matrix_bigwigs_2"]["tag_extra_data_input"],
-        maxThreshold=config["cluster_regulatory_elements"]["maxThreshold"],
-        plotTitle=config["cluster_regulatory_elements"]["plotTitle"],
-        folder1=config["analysis_name"]+os.sep+"{folder}/07_plot_RE/01_RE_only",
-        folder2=config["analysis_name"]+os.sep+"{folder}/07_plot_RE/02_activity_rule",
-        folder3=config["analysis_name"]+os.sep+"{folder}/07_plot_RE/03_activity_extra",
+        extra = "-c -q 30", #"-c -q 30 -F 3844",
+        tmp_file = config["analysis_name"]+os.sep+"{folder}/07_read_count/tmp_read_count.csv"
     shell:
-        """ 
-            python scripts/02_plot_regulatory_elements.py \
-                {input.mtx} \
-                {params.bw} \
-                {params.range_definition} \
-                {params.tag_extra_data_input} \
-                {params.maxThreshold} \
-                {params.plotTitle} \
-                {params.folder1} \
-                {params.folder2} \
-                {params.folder3} \
-                {input.bed1} \
-                {input.bed2} \
-                {output}
+        """
+            samtools view {params.extra} {input.bamH3K4me1} > {params.tmp_file}
+            samtools view {params.extra} {input.bamH3K4me3} >> {params.tmp_file}
+            samtools view {params.extra} {input.bamH3K27ac} >> {params.tmp_file}
+            samtools view {params.extra} {input.bamCTCF} >> {params.tmp_file}
+            mv {params.tmp_file} {output}
         """
 
 
@@ -136,19 +158,20 @@ rule mlv_regulatory_elements:
     input:
         #sort_union = config["analysis_name"]+os.sep+"{folder}/06_active_elements/sorted_regions.bed",
         sort_union = config["analysis_name"]+os.sep+"{folder}/04_sort_regions/sort_union.bed",
-        H3K4me1_peaks = config["union_peaks"]["H3K4me1"],
-        H3K4me3_peaks = config["union_peaks"]["H3K4me3"],
-        H3K27ac_peaks = config["union_peaks"]["H3K27ac"],
-        CTCF_peaks = config["union_peaks"]["CTCF"],
+        H3K4me1_peaks = config["union_peaks"]["bed_H3K4me1"],
+        H3K4me3_peaks = config["union_peaks"]["bed_H3K4me3"],
+        H3K27ac_peaks = config["union_peaks"]["bed_H3K27ac"],
+        CTCF_peaks = config["union_peaks"]["bed_CTCF"],
         H3K4me1_bw = config["compute_matrix_bigwigs"]["bigwig_H3K4me1"],
         H3K4me3_bw = config["compute_matrix_bigwigs"]["bigwig_H3K4me3"],
         H3K27ac_bw = config["compute_matrix_bigwigs"]["bigwig_H3K27ac"],
         CTCF_bw = config["compute_matrix_bigwigs"]["bigwig_CTCF"],
+        norm = config["analysis_name"]+os.sep+"{folder}/07_read_count/read_count.csv",
     output:
         config["analysis_name"]+os.sep+"{folder}/08_REgulamentary/mlv_REgulamentary.csv",
     params:
         extra_peaks = config["analysis_name"]+os.sep+"{folder}/06_active_elements/%s_L-tron_filtered_intersection.bed"%bw,
-        extra_bw = config["compute_matrix_bigwigs_2"]["bigwig"],
+        extra_bw = config["compute_matrix_bigwigs_2"]["bigwig_extra"],
         thresholdPeaks = config["thresholdPeaks"],
         tss = tss,
         tmp_pybedtools = config["analysis_name"]+os.sep+"{folder}/tmp_pybedtools",
@@ -169,7 +192,8 @@ rule mlv_regulatory_elements:
                 {params.thresholdPeaks} \
                 {output} \
                 {params.tss} \
-                {params.tmp_pybedtools}
+                {params.tmp_pybedtools} \
+                {input.norm}
         """
         
         

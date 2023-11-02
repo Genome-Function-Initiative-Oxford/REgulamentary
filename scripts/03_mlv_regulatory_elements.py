@@ -10,7 +10,7 @@ from sklearn.metrics import auc
 import math
 import multiprocessing as mp
 
-def _auc(x_r, y_bw):
+def _auc(x_r, y_bw, z_nnorm):
     if x_r.empty:
         return 0
     else:
@@ -22,10 +22,11 @@ def _auc(x_r, y_bw):
             else:
                 cov = y_bw.values(tuple(x_r.iloc[j])[0], tuple(x_r.iloc[j])[1], tuple(x_r.iloc[j])[2])
                 cov = [0.0 if math.isnan(x) else x for x in cov]
-                aucs.append(auc(np.arange(0, len(cov)), np.array(cov)))
+                # scaling factor (np.array(cov)/z_nnorm)
+                aucs.append(auc(np.arange(0, len(cov)), np.array(cov)/z_nnorm))
         return np.mean(np.array(aucs))
 
-def _coverage(reg, bw1, bw2, bw3, bw4):
+def _coverage(reg, bw1, bw2, bw3, bw4, nnorm):
     bw1_tmp = pyBigWig.open(bw1)
     bw2_tmp = pyBigWig.open(bw2)
     bw3_tmp = pyBigWig.open(bw3)
@@ -51,10 +52,10 @@ def _coverage(reg, bw1, bw2, bw3, bw4):
         H3K27ac_r = sort_r.intersect(H3K27ac_r).to_dataframe()
         CTCF_r    = sort_r.intersect(CTCF_r).to_dataframe()
 
-        H3K4me1_auc = _auc(H3K4me1_r, bw1_tmp)
-        H3K4me3_auc = _auc(H3K4me3_r, bw2_tmp)
-        H3K27ac_auc = _auc(H3K27ac_r, bw3_tmp)
-        CTCF_auc    = _auc(CTCF_r, bw4_tmp)
+        H3K4me1_auc = _auc(H3K4me1_r, bw1_tmp, nnorm['scales']['H3K4me1'])
+        H3K4me3_auc = _auc(H3K4me3_r, bw2_tmp, nnorm['scales']['H3K4me3'])
+        H3K27ac_auc = _auc(H3K27ac_r, bw3_tmp, nnorm['scales']['H3K27ac'])
+        CTCF_auc    = _auc(CTCF_r, bw4_tmp, nnorm['scales']['CTCF'])
         
         if (H3K4me1_auc == 0.0) and (H3K4me3_auc == 0.0) and (CTCF_auc == 0.0):
             print("skipping %s:%d-%d ..."%(chromosome_r, start_r, end_r))
@@ -84,6 +85,7 @@ params12 = sys.argv[12] #{params.thresholdPeaks} \
 params13 = sys.argv[13] #{output}
 params14 = sys.argv[14] #{params.tss}
 params15 = sys.argv[15] #{params.tss}
+params16 = sys.argv[16] #{input.norm}
 
 if not os.path.exists(params15):
     os.makedirs(params15)
@@ -117,6 +119,13 @@ H3K4me3_bw = params7
 H3K27ac_bw = params8
 CTCF_bw    = params9
 
+
+norm = pd.read_csv(params16, names=['counts'])
+norm.index = ['H3K4me1', 'H3K4me3', 'H3K27ac', 'CTCF']
+alpha = 1000000
+norm['scales'] = norm['counts']/alpha
+
+
 regions = []
 for i in sort_union[0].value_counts().index:
     regions.append(sort_union[sort_union[0]==i])
@@ -126,7 +135,7 @@ n_cpu = mp.cpu_count()
 if n_cpu > 10:
     n_cpu = n_cpu - 5
 pool = mp.Pool(n_cpu)
-results = [pool.apply_async(_coverage, args=(reg, H3K4me1_bw, H3K4me3_bw, H3K27ac_bw, CTCF_bw)) for reg in regions]
+results = [pool.apply_async(_coverage, args=(reg, H3K4me1_bw, H3K4me3_bw, H3K27ac_bw, CTCF_bw, norm)) for reg in regions]
 pool.close()
 
 coverage = []
@@ -144,32 +153,34 @@ df = pd.concat([df_auc, df_rank], axis=1)
 
 df['RE'] = 'Not assigned'
 
-df.loc[((df['H3K4me1_rank'] == 1.0) & (df['H3K4me3_rank'] == 2.0)) | 
-       ((df['H3K4me1_rank'] == 2.0) & (df['H3K4me3_rank'] == 1.0)), 'RE'] = 'Enhancer/Promoter'
-
-df.loc[((df['H3K4me1_rank'] == 1.0) & (df['H3K27ac_rank'] == 2.0)) | 
+# phase1
+df.loc[((df['H3K4me1_rank'] == 1.0) & (df['H3K4me3_rank'] == 2.0)) |
+       ((df['H3K4me1_rank'] == 1.0) & (df['H3K27ac_rank'] == 2.0)) | 
        ((df['H3K4me1_rank'] == 2.0) & (df['H3K27ac_rank'] == 1.0)) | 
        ((df['H3K4me1_rank'] == 1.0) & (df['H3K4me3_auc'] == 0.0) & (df['H3K27ac_auc'] == 0.0) & (df['CTCF_auc'] == 0.0)), 'RE'] = 'Enhancer'
 
-df.loc[((df['H3K4me1_rank'] == 1.0) & (df['CTCF_rank'] == 2.0)) | 
-       ((df['H3K4me1_rank'] == 2.0) & (df['CTCF_rank'] == 1.0)) |
-       ((df['H3K4me1_auc'] != 0.0) & (df['H3K4me3_auc'] == 0.0) & (df['H3K27ac_auc'] != 0.0) & (df['CTCF_auc'] != 0.0)), 'RE'] = 'Enhancer/CTCF'
-
-df.loc[((df['H3K4me3_rank'] == 1.0) & (df['H3K27ac_rank'] == 2.0)) | 
+df.loc[((df['H3K4me1_rank'] == 2.0) & (df['H3K4me3_rank'] == 1.0)) |
+       ((df['H3K4me3_rank'] == 1.0) & (df['H3K27ac_rank'] == 2.0)) | 
        ((df['H3K4me3_rank'] == 2.0) & (df['H3K27ac_rank'] == 1.0)) |
        ((df['H3K4me3_rank'] == 1.0) & (df['H3K4me1_auc'] == 0.0) & (df['H3K27ac_auc'] == 0.0) & (df['CTCF_auc'] == 0.0)), 'RE'] = 'Promoter'
-
-df.loc[((df['H3K4me3_rank'] == 1.0) & (df['CTCF_rank'] == 2.0)) | 
-       ((df['H3K4me3_rank'] == 2.0) & (df['CTCF_rank'] == 1.0)) |
-       ((df['H3K4me1_auc'] == 0.0) & (df['H3K4me3_auc'] != 0.0) & (df['H3K27ac_auc'] != 0.0) & (df['CTCF_auc'] != 0.0)), 'RE'] = 'Promoter/CTCF'
 
 df.loc[((df['H3K27ac_rank'] == 1.0) & (df['CTCF_rank'] == 2.0) & (df['H3K4me1_auc'] == 0.0) & (df['H3K4me3_auc'] == 0.0)) | 
        ((df['H3K27ac_rank'] == 2.0) & (df['CTCF_rank'] == 1.0) & (df['H3K4me1_auc'] == 0.0) & (df['H3K4me3_auc'] == 0.0)) | 
        ((df['CTCF_rank'] == 1.0) & (df['H3K4me1_auc'] == 0.0) & (df['H3K4me3_auc'] == 0.0) & (df['H3K27ac_auc'] == 0.0) & (df['CTCF_auc'] != 0.0)), 'RE'] = 'CTCF'
 
-df.loc[((df['H3K4me1_auc'] != 0.0) & (df['H3K4me3_auc'] != 0.0) & (df['H3K27ac_auc'] != 0.0) & (df['CTCF_auc'] == 0.0)), 'RE'] = 'TBD_1'
-df.loc[((df['H3K4me1_auc'] != 0.0) & (df['H3K4me3_auc'] != 0.0) & (df['H3K27ac_auc'] == 0.0) & (df['CTCF_auc'] != 0.0)), 'RE'] = 'TBD_2'
-df.loc[((df['H3K4me1_auc'] != 0.0) & (df['H3K4me3_auc'] != 0.0) & (df['H3K27ac_auc'] != 0.0) & (df['CTCF_auc'] != 0.0)), 'RE'] = 'TBD_3'
+# phase2
+df.loc[((df['H3K4me1_rank'] == 1.0) & (df['CTCF_rank'] == 2.0)) | 
+       ((df['H3K4me1_rank'] == 2.0) & (df['CTCF_rank'] == 1.0)) |
+       ((df['H3K4me1_auc'] != 0.0) & (df['H3K4me3_auc'] == 0.0) & (df['H3K27ac_auc'] != 0.0) & (df['CTCF_auc'] != 0.0)), 'RE'] = 'Enhancer/CTCF'
+
+df.loc[((df['H3K4me3_rank'] == 1.0) & (df['CTCF_rank'] == 2.0)) | 
+       ((df['H3K4me3_rank'] == 2.0) & (df['CTCF_rank'] == 1.0)) |
+       ((df['H3K4me1_auc'] == 0.0) & (df['H3K4me3_auc'] != 0.0) & (df['H3K27ac_auc'] != 0.0) & (df['CTCF_auc'] != 0.0)), 'RE'] = 'Promoter/CTCF'
+
+
+# df.loc[((df['H3K4me1_auc'] != 0.0) & (df['H3K4me3_auc'] != 0.0) & (df['H3K27ac_auc'] != 0.0) & (df['CTCF_auc'] == 0.0)), 'RE'] = 'TBD_1'
+# df.loc[((df['H3K4me1_auc'] != 0.0) & (df['H3K4me3_auc'] != 0.0) & (df['H3K27ac_auc'] == 0.0) & (df['CTCF_auc'] != 0.0)), 'RE'] = 'TBD_2'
+# df.loc[((df['H3K4me1_auc'] != 0.0) & (df['H3K4me3_auc'] != 0.0) & (df['H3K27ac_auc'] != 0.0) & (df['CTCF_auc'] != 0.0)), 'RE'] = 'TBD_3'
 
 
 df.loc[(df['H3K27ac_rank'] != 1.0), 'Activity_H3K27ac'] = 'Inactive'

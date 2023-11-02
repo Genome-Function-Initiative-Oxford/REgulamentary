@@ -1,12 +1,18 @@
 import os, sys
+from snakemake.utils import validate
+from snakemake.utils import min_version
+
+min_version("7.0.0")
 
 configfile: "config/analysis.yaml"
+
+# validate(config, schema="config/schema/config.schema.yaml")
 
 include: "rules/01_pre_processing.smk"
 include: "rules/02_deeptools_helper.smk"
 include: "rules/03_regulatory_elements.smk"
 
-bw = config["compute_matrix_bigwigs_2"]["bigwig"].split("/")[-1].replace(".bw", "")
+bw = config["compute_matrix_bigwigs_2"]["bigwig_extra"].split("/")[-1].replace(".bw", "")
 
 rule all:
     input:
@@ -29,7 +35,9 @@ rule all:
                folder=["ATAC", "CTCF", "merge"]),
         expand(config["analysis_name"]+os.sep+"{folder}/06_active_elements/%s_L-tron_filtered_intersection.bed"%bw,
                folder=["ATAC", "CTCF", "merge"]),
-        expand(config["analysis_name"]+os.sep+"{folder}/07_plot_RE/mlv_deeptools.csv", 
+        # expand(config["analysis_name"]+os.sep+"{folder}/07_plot_RE/mlv_deeptools.csv", 
+        #        folder=["ATAC", "CTCF", "merge"]),
+        expand(config["analysis_name"]+os.sep+"{folder}/07_read_count/read_count.csv", 
                folder=["ATAC", "CTCF", "merge"]),
         expand(config["analysis_name"]+os.sep+"{folder}/08_REgulamentary/mlv_REgulamentary.csv", 
                folder=["ATAC", "CTCF", "merge"]),

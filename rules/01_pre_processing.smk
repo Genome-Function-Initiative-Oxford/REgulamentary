@@ -9,8 +9,8 @@ else:
     
 rule union_peaks:
     input:
-        bed1=config["union_peaks"]["ATAC"],
-        bed2=config["union_peaks"]["CTCF"],
+        bed1=config["union_peaks"]["bed_ATAC"],
+        bed2=config["union_peaks"]["bed_CTCF"],
     output:
         atac=config["analysis_name"]+os.sep+"ATAC/01_union_peaks/union_peaks.bed",
         ctcf=config["analysis_name"]+os.sep+"CTCF/01_union_peaks/union_peaks.bed",
@@ -58,8 +58,8 @@ rule remove_blacklist:
 rule multicoverages:
     input:
         bed=config["analysis_name"]+os.sep+"{folder}/02_blacklist_removed/union_peaks.bed",
-        bam1=config["multicoverages"]["bamH3K4me1"],
-        bam2=config["multicoverages"]["bamH3K4me3"],
+        bam1=config["multicoverages"]["bam_H3K4me1"],
+        bam2=config["multicoverages"]["bam_H3K4me3"],
     output:
         config["analysis_name"]+os.sep+"{folder}/03_multicov/multicov.bed",        
     shell:
