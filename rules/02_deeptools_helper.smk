@@ -10,7 +10,7 @@ rule compute_matrices:
         mtx2=config["analysis_name"]+os.sep+"{folder}/05_compute_matrix/readable_matrix.mtx",
         mtx3=config["analysis_name"]+os.sep+"{folder}/05_compute_matrix/sorted_regions.mtx",
     params:
-        bw=config["compute_matrix_bigwigs_2"]["bigwig_extra"],
+        bw=config["compute_matrix_bigwigs_extra"]["bigwig_extra"],
         referencePoint=config["compute_matrix_extra"]["referencePoint"],
         b=config["compute_matrix_extra"]["b"],
         a=config["compute_matrix_extra"]["a"],

@@ -1,4 +1,4 @@
-bw = config["compute_matrix_bigwigs_2"]["bigwig_extra"].split("/")[-1].replace(".bw", "")
+bw = config["compute_matrix_bigwigs_extra"]["bigwig_extra"].split("/")[-1].replace(".bw", "")
 
 if config["remove_blacklist"]["genome"] == "hg38":
     tss = "TSS/TSS_hg38_strict.bed"
@@ -13,8 +13,8 @@ rule active_elements:
     output:
         config["analysis_name"]+os.sep+"{folder}/06_active_elements/lanceotron.txt",
     params:
-        bw=config["compute_matrix_bigwigs_2"]["bigwig_extra"],
-        peak=config["compute_matrix_bigwigs_2"]["bed_extra"],
+        bw=config["compute_matrix_bigwigs_extra"]["bigwig_extra"],
+        peak=config["compute_matrix_bigwigs_extra"]["bed_extra"],
         peak_folder=config["analysis_name"]+os.sep+"{folder}/06_active_elements",
         peak_folder_tmp=config["analysis_name"]+os.sep+"tmp",
     log:
@@ -46,11 +46,11 @@ rule filter_active_elements:
         config["analysis_name"]+os.sep+"{folder}/06_active_elements/%s_L-tron_filtered.bed"%bw,
     params:
         bw=config["analysis_name"]+os.sep+"{folder}/06_active_elements/%s_L-tron.bed"%bw,
-        threshold=config["compute_matrix_bigwigs_2"]["threshold"],
+        threshold=config["compute_matrix_bigwigs_extra"]["threshold"],
     run:
         import glob
         import pandas as pd
-        if config["compute_matrix_bigwigs_2"]["bigwig_extra"] == "none":
+        if config["compute_matrix_bigwigs_extra"]["bigwig_extra"] == "none":
             f = open(output[0], "w")
             f.write("skipping filter_active_elements for bigwig file missing")
             f.close()
@@ -67,7 +67,7 @@ rule clean_sorted_regions: #maybe to remove!?
     output:
         config["analysis_name"]+os.sep+"{folder}/06_active_elements/sorted_regions.bed",
     params:
-        bw=config["compute_matrix_bigwigs_2"]["bigwig_extra"],
+        bw=config["compute_matrix_bigwigs_extra"]["bigwig_extra"],
     run:
         import pandas as pd
         df = pd.read_csv(input[0], sep="\t")
@@ -84,7 +84,7 @@ rule intersect_active_elements:
     output:
         config["analysis_name"]+os.sep+"{folder}/06_active_elements/%s_L-tron_filtered_intersection.bed"%bw,
     params:
-        bw=config["compute_matrix_bigwigs_2"]["bigwig_extra"],
+        bw=config["compute_matrix_bigwigs_extra"]["bigwig_extra"],
     shell:
         """
             if [ {params.bw} == "none" ]
@@ -106,9 +106,9 @@ rule intersect_active_elements:
 #     output:
 #         config["analysis_name"]+os.sep+"{folder}/07_plot_RE/mlv_deeptools.csv",
 #     params:
-#         bw=config["compute_matrix_bigwigs_2"]["bigwig_extra"],
+#         bw=config["compute_matrix_bigwigs_extra"]["bigwig_extra"],
 #         range_definition=config["cluster_regulatory_elements"]["range_definition"],
-#         tag_extra_data_input=config["compute_matrix_bigwigs_2"]["tag_extra_data_input"],
+#         tag_extra_data_input=config["compute_matrix_bigwigs_extra"]["tag_extra_data_input"],
 #         maxThreshold=config["cluster_regulatory_elements"]["maxThreshold"],
 #         plotTitle=config["cluster_regulatory_elements"]["plotTitle"],
 #         folder1=config["analysis_name"]+os.sep+"{folder}/07_plot_RE/01_RE_only",
@@ -132,6 +132,7 @@ rule intersect_active_elements:
 #         """
 
 
+# add read_count4normalisation for extra bam
 rule read_count4normalisation:
     input:
         # sort_union = config["analysis_name"]+os.sep+"{folder}/04_sort_regions/sort_union.bed",
@@ -171,7 +172,7 @@ rule mlv_regulatory_elements:
         config["analysis_name"]+os.sep+"{folder}/08_REgulamentary/mlv_REgulamentary.csv",
     params:
         extra_peaks = config["analysis_name"]+os.sep+"{folder}/06_active_elements/%s_L-tron_filtered_intersection.bed"%bw,
-        extra_bw = config["compute_matrix_bigwigs_2"]["bigwig_extra"],
+        extra_bw = config["compute_matrix_bigwigs_extra"]["bigwig_extra"],
         thresholdPeaks = config["thresholdPeaks"],
         tss = tss,
         tmp_pybedtools = config["analysis_name"]+os.sep+"{folder}/tmp_pybedtools",

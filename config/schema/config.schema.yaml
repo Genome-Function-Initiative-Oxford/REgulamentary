@@ -61,7 +61,7 @@ properties:
       type: string
       enum: ["descend", "ascend", "no", "keep"]
 
-  compute_matrix_bigwigs_2:
+  compute_matrix_bigwigs_extra:
     bed_extra: 
       type: string
     bigwig_extra: 

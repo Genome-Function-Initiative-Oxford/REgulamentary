@@ -73,7 +73,7 @@ compute_matrix_extra:
 ###################################################################################################################
 ###################################################################################################################
 ### Cluster regulatory elements params
-compute_matrix_bigwigs_2:
+compute_matrix_bigwigs_extra:
     bed_extra: "<path to extra.bed>" #specify 'none' if no peak
     bigwig_extra: "<path to extra.bw>" #specify 'none' if no bigwig
     tag_extra_data_input: "EXTRA"
