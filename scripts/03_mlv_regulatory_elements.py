@@ -169,12 +169,12 @@ df.loc[((df['H3K27ac_rank'] == 1.0) & (df['CTCF_rank'] == 2.0) & (df['H3K4me1_au
        ((df['CTCF_rank'] == 1.0) & (df['H3K4me1_auc'] == 0.0) & (df['H3K4me3_auc'] == 0.0) & (df['H3K27ac_auc'] == 0.0) & (df['CTCF_auc'] != 0.0)), 'RE'] = 'CTCF'
 
 # phase2
-df.loc[((df['H3K4me1_rank'] == 1.0) & (df['CTCF_rank'] == 2.0)) | 
-       ((df['H3K4me1_rank'] == 2.0) & (df['CTCF_rank'] == 1.0)) |
+df.loc[((df['H3K4me1_rank'] == 1.0) & (df['CTCF_rank'] == 2.0) & (df['H3K4me1_auc'] != 0.0) & (df['CTCF_auc'] != 0.0)) | 
+       ((df['H3K4me1_rank'] == 2.0) & (df['CTCF_rank'] == 1.0) & (df['H3K4me1_auc'] != 0.0) & (df['CTCF_auc'] != 0.0)) |
        ((df['H3K4me1_auc'] != 0.0) & (df['H3K4me3_auc'] == 0.0) & (df['H3K27ac_auc'] != 0.0) & (df['CTCF_auc'] != 0.0)), 'RE'] = 'Enhancer/CTCF'
 
-df.loc[((df['H3K4me3_rank'] == 1.0) & (df['CTCF_rank'] == 2.0)) | 
-       ((df['H3K4me3_rank'] == 2.0) & (df['CTCF_rank'] == 1.0)) |
+df.loc[((df['H3K4me3_rank'] == 1.0) & (df['CTCF_rank'] == 2.0) & (df['H3K4me3_auc'] != 0.0) & (df['CTCF_auc'] != 0.0)) | 
+       ((df['H3K4me3_rank'] == 2.0) & (df['CTCF_rank'] == 1.0) & (df['H3K4me3_auc'] != 0.0) & (df['CTCF_auc'] != 0.0)) |
        ((df['H3K4me1_auc'] == 0.0) & (df['H3K4me3_auc'] != 0.0) & (df['H3K27ac_auc'] != 0.0) & (df['CTCF_auc'] != 0.0)), 'RE'] = 'Promoter/CTCF'
 
 

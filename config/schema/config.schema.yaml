@@ -61,6 +61,12 @@ properties:
       type: string
       enum: ["descend", "ascend", "no", "keep"]
 
+  metaplot:
+    title: 
+      type: string
+    upper_threshold:
+      type: string
+
   compute_matrix_bigwigs_extra:
     bed_extra: 
       type: string

@@ -104,7 +104,7 @@ rule intersect_active_elements:
 #         #bed1=config["analysis_name"]+os.sep+"{folder}/04_sort_regions/sort_union.bed",
 #         bed2=config["analysis_name"]+os.sep+"{folder}/06_active_elements/%s_L-tron_filtered_intersection.bed"%bw,
 #     output:
-#         config["analysis_name"]+os.sep+"{folder}/07_plot_RE/mlv_deeptools.csv",
+#         config["analysis_name"]+os.sep+"{folder}/09_plot_RE/mlv_deeptools.csv",
 #     params:
 #         bw=config["compute_matrix_bigwigs_extra"]["bigwig_extra"],
 #         range_definition=config["cluster_regulatory_elements"]["range_definition"],
@@ -196,19 +196,48 @@ rule mlv_regulatory_elements:
                 {params.tmp_pybedtools} \
                 {input.norm}
         """
-        
-        
+
+rule metaplots:
+    input:
+        re=config["analysis_name"]+os.sep+"{folder}/08_REgulamentary/mlv_REgulamentary.csv",
+        sort_union=config["analysis_name"]+os.sep+"{folder}/04_sort_regions/sort_union.bed",
+        matrix=config["analysis_name"]+os.sep+"{folder}/05_compute_matrix/readable_matrix.mtx",
+    output:
+        matrix_output=config["analysis_name"]+os.sep+"{folder}/09_metaplot/matrix.csv",
+    params:
+        extra_bw = config["compute_matrix_bigwigs_extra"]["bigwig_extra"],
+        title = config["metaplot"]["title"],
+        upper_threshold = config["metaplot"]["upper_threshold"],
+        output_folder = config["analysis_name"]+os.sep+"{folder}/09_metaplot/",
+        name_extra = config['compute_matrix_bigwigs_extra']['tag_extra_data_input'],
+    shell:
+        """
+            python scripts/04_metaplots.py \
+                {params.extra_bw} \
+                {params.title} \
+                {params.upper_threshold} \
+                {input.sort_union} \
+                {input.matrix} \
+                {input.re} \
+                {params.output_folder} \
+                {output.matrix_output} \
+                {params.name_extra}
+        """
+
 rule clean:
     input:
-        i1 = config["analysis_name"]+os.sep+"ATAC/08_REgulamentary/mlv_REgulamentary.csv",
-        i2 = config["analysis_name"]+os.sep+"CTCF/08_REgulamentary/mlv_REgulamentary.csv",
-        i3 = config["analysis_name"]+os.sep+"merge/08_REgulamentary/mlv_REgulamentary.csv",
+        # i1 = config["analysis_name"]+os.sep+"ATAC/08_REgulamentary/mlv_REgulamentary.csv",
+        # i2 = config["analysis_name"]+os.sep+"CTCF/08_REgulamentary/mlv_REgulamentary.csv",
+        # i3 = config["analysis_name"]+os.sep+"merge/08_REgulamentary/mlv_REgulamentary.csv",
+        # metaplot=config["analysis_name"]+os.sep+"{folder}/09_mataplot/metaplot.pdf",
+        # clustered_metaplot=config["analysis_name"]+os.sep+"{folder}/09_mataplot/clustered_metaplot.pdf",
+        matrix_output=config["analysis_name"]+os.sep+"{folder}/09_metaplot/matrix.csv",
     output:
-        config["analysis_name"]+os.sep+"{folder}/08_REgulamentary/clean.txt",
+        config["analysis_name"]+os.sep+"{folder}/done.txt",
     params:
         rm_tmp=config["analysis_name"]+os.sep+"tmp"
     shell:
         """
-            echo Next step: Loading mlv.csv into MLV and moving into datashare bigwig files >> {output}
+            echo REgulamentary finished without any error >> {output}
             rm -rf {params.rm_tmp}
         """

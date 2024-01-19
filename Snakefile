@@ -35,14 +35,11 @@ rule all:
                folder=["ATAC", "CTCF", "merge"]),
         expand(config["analysis_name"]+os.sep+"{folder}/06_active_elements/%s_L-tron_filtered_intersection.bed"%bw,
                folder=["ATAC", "CTCF", "merge"]),
-        # expand(config["analysis_name"]+os.sep+"{folder}/07_plot_RE/mlv_deeptools.csv", 
-        #        folder=["ATAC", "CTCF", "merge"]),
         expand(config["analysis_name"]+os.sep+"{folder}/07_read_count/read_count.csv", 
                folder=["ATAC", "CTCF", "merge"]),
         expand(config["analysis_name"]+os.sep+"{folder}/08_REgulamentary/mlv_REgulamentary.csv", 
                folder=["ATAC", "CTCF", "merge"]),
-        expand(config["analysis_name"]+os.sep+"{folder}/08_REgulamentary/clean.txt", 
+        expand(config["analysis_name"]+os.sep+"{folder}/09_metaplot/matrix.csv", 
+                folder=["ATAC", "CTCF", "merge"]),
+        expand(config["analysis_name"]+os.sep+"{folder}/done.txt",
                folder=["ATAC", "CTCF", "merge"])
-               
-                      
-        
