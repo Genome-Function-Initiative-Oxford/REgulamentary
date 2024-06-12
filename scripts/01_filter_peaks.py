@@ -4,11 +4,13 @@ import pandas as pd
 import warnings
 warnings.filterwarnings('ignore')
 
-params1 = sys.argv[1] #input
-params2 = sys.argv[2] #output
+inputf = sys.argv[1] #input
+outputf = sys.argv[2] #output
+thr = sys.argv[2] #thr
 
-df = pd.read_csv(params1, sep='\t')
-df = df[df["overall_peak_score"]>0.95]
+df = pd.read_csv(inputf, sep='\t')
+df = df[df["overall_peak_score"]>thr]
 df = df[["chrom","start","end"]]
+df = df[df['chrom'].str.startswith('chr')]
 
-df.to_csv(params2, index=None, header=None, sep="\t")
+df.to_csv(outputf, index=None, header=None, sep="\t")

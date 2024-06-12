@@ -1,3 +1,5 @@
+# cat {output.atac} {output.ctcf} > {params.tmp_bed}
+
 if config["remove_blacklist"]["genome"] == "hg38":
     blacklist = "blacklists/hg38.bed"
 elif config["remove_blacklist"]["genome"] == "mm39":
@@ -25,13 +27,13 @@ rule union_peaks:
             then
                 python scripts/01_filter_peaks.py {input.bed1} {output.atac} {params.peak_caller_thr}
                 python scripts/01_filter_peaks.py {input.bed2} {output.ctcf} {params.peak_caller_thr}
-                cat {output.atac} {output.ctcf} > {params.tmp_bed}
-                sort {params.tmp_bed} | uniq -u > {output.merged}                
+                cat {output.atac} {output.ctcf} | cut -f 1,2,3 | bedtools sort | bedtools merge > {params.tmp_bed}
+                sort {params.tmp_bed} | uniq -u > {output.merged}  
                 rm -rf {params.tmp_bed}
             else
                 cp {input.bed1} {output.atac}
                 cp {input.bed2} {output.ctcf}
-                cat {output.atac} {output.ctcf} > {params.tmp_bed}
+                cat {output.atac} {output.ctcf} | cut -f 1,2,3 | bedtools sort | bedtools merge > {params.tmp_bed}
                 sort {params.tmp_bed} | uniq -u > {output.merged}                
                 rm -rf {params.tmp_bed}
             fi
