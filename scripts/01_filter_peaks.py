@@ -6,7 +6,7 @@ warnings.filterwarnings('ignore')
 
 inputf = sys.argv[1] #input
 outputf = sys.argv[2] #output
-thr = sys.argv[2] #thr
+thr = sys.argv[3] #thr
 
 df = pd.read_csv(inputf, sep='\t')
 df = df[df["overall_peak_score"]>thr]
