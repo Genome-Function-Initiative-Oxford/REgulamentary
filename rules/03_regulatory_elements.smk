@@ -26,14 +26,14 @@ rule active_elements:
             else
                 mkdir -p {params.peak_folder}
                 mkdir -p {params.peak_folder_tmp}
-                if [ {params.bw} == "none" ]
+                if [ {params.peak} == "none" ]
                 then
                     lanceotron callPeaks {params.bw} -f {params.peak_folder_tmp}
                     cp -r {params.peak_folder_tmp}/* {params.peak_folder}/
                     echo laceotron applied on extra bigwig Done! >> {output}
                 else
                     cp {params.peak} {params.peak_folder}/
-                    echo laceotron not applied because peaks already provided! >> {output}
+                    echo lanceotron not applied because peaks already provided! >> {output}
                 fi
             fi
         """
@@ -45,7 +45,7 @@ rule filter_active_elements:
     output:
         config["analysis_name"]+os.sep+"{folder}/06_active_elements/%s_L-tron_filtered.bed"%bw,
     params:
-        bw=config["analysis_name"]+os.sep+"{folder}/06_active_elements/%s_L-tron.bed"%bw,
+        bed=config["analysis_name"]+os.sep+"{folder}/06_active_elements/%s_L-tron.bed"%bw,
         threshold=config["compute_matrix_bigwigs_extra"]["threshold"],
     run:
         import glob
@@ -55,7 +55,7 @@ rule filter_active_elements:
             f.write("skipping filter_active_elements for bigwig file missing")
             f.close()
         else:
-            input_f = glob.glob(params.bw)[0]        
+            input_f = glob.glob(params.bed)[0]        
             peak = pd.read_csv(input_f, sep='\t')
             peak = peak[peak["overall_peak_score"]>=params.threshold]
             peak.to_csv(output[0], index=False, sep='\t')

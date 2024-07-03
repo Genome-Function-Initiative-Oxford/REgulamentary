@@ -68,9 +68,9 @@ properties:
       type: string
 
   compute_matrix_bigwigs_extra:
-    bed_extra: 
-      type: string
     bigwig_extra: 
+      type: string
+    bed_extra: 
       type: string
     tag_extra_data_input: 
       type: string
