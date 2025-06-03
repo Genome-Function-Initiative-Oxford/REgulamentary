@@ -1,10 +1,11 @@
 rule compute_matrices:
+    #the bigwigs can be specified in in different parameters in the config
     input:
         bed=config["analysis_name"]+os.sep+"{folder}/04_sort_regions/sort_union.bed",
-        bw1=config["compute_matrix_bigwigs"]["bigwig_H3K4me1"],
-        bw2=config["compute_matrix_bigwigs"]["bigwig_H3K4me3"],
-        bw3=config["compute_matrix_bigwigs"]["bigwig_H3K27ac"],
-        bw4=config["compute_matrix_bigwigs"]["bigwig_CTCF"],
+        bw1 = lambda w: config["bigwigs"]["H3K4me1"] if use_defined_bw else config["compute_matrix_bigwigs"]["bigwig_H3K4me1"],
+        bw2 = lambda w: config["bigwigs"]["H3K4me3"] if use_defined_bw else config["compute_matrix_bigwigs"]["bigwig_H3K4me3"],
+        bw3 = lambda w: config["bigwigs"]["H3K27ac"] if use_defined_bw else config["compute_matrix_bigwigs"]["bigwig_H3K27ac"],
+        bw4 = lambda w: config["bigwigs"]["CTCF"] if use_defined_bw else config["compute_matrix_bigwigs"]["bigwig_CTCF"],
     output:
         mtx1=config["analysis_name"]+os.sep+"{folder}/05_compute_matrix/matrix.mtx",
         mtx2=config["analysis_name"]+os.sep+"{folder}/05_compute_matrix/readable_matrix.mtx",
