@@ -96,3 +96,27 @@ If you have any suggestions, spot any errors, or have any questions regarding RE
 :email: &emsp; [<simone.riva@imm.ox.ac.uk>](simone.riva@imm.ox.ac.uk)
 
 
+### Running with BigWig Files
+
+The pipeline can be run using BigWig files instead of BAMs by utilizing the signal value at each region instead of read counts. While results may differ slightly from those obtained using BAM files, if the BigWig files were generated at the highest possible resolution, the results are typically nearly identical.
+
+An example configuration for running in this mode is provided at `config/astrocyte_chr21_bw.yaml`. To use BigWigs, simply specify the file paths for each mark (CTCF, H3K4me1, H3K4me3, H3K27ac) and ATAC/DNase under the `bigwigs` parameter. 
+
+If you want the pipeline to automatically call peaks, add `create_bed_files: True` under the `bigwigs` section. Otherwise, you must provide BED files manually via the `union_peaks` parameter.
+
+**Example:**
+
+```yaml
+bigwigs:
+  ATAC: "test_data/bigwigs/astrocyte_DNase_chr21.bw"
+  H3K4me1: "test_data/bigwigs/astrocyte_H3K4me1_chr21.bw"
+  H3K4me3: "test_data/bigwigs/astrocyte_H3K4me3_chr21.bw"
+  H3K27ac: "test_data/bigwigs/astrocyte_H3K27ac_chr21.bw"
+  CTCF: "test_data/bigwigs/astrocyte_CTCF_chr21.bw"
+  create_bed_files: True
+```
+
+To test this mode, ensure you are in the main project directory and run:
+
+```bash
+snakemake --configfile=config/astrocyte_chr21_bw.yaml all --cores 2
