@@ -9,6 +9,22 @@ properties:
   analysis_name: 
     type: string
 
+
+
+  bigwigs:
+    H3K4me1:
+      type: string
+    H3K4me3:
+      type: string
+    ATAC:
+      type: string
+    H3K27ac:
+      type: string
+    CTCF:
+      type: string
+    create_bed_files: boolean
+
+
   union_peaks: 
     bed_ATAC: 
       type: string

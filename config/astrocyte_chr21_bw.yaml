@@ -1,0 +1,56 @@
+###################################################################################################################
+############################################### User defined params ###############################################
+###################################################################################################################
+
+### analysis_name: your analysis must have a unique name. This name will be both the name of your configuration file, and the name of the folder with all analysis
+analysis_name: "astrocyte_chr21"
+
+
+###################################################################################################################
+###################################################################################################################
+### bigwigs
+bigwigs:
+  ATAC: "test_data/bigwigs/astrocyte_DNase_chr21.bw"
+  H3K4me1: "test_data/bigwigs/astrocyte_H3K4me1_chr21.bw"
+  H3K4me3: "test_data/bigwigs/astrocyte_H3K4me3_chr21.bw"
+  H3K27ac: "test_data/bigwigs/astrocyte_H3K27ac_chr21.bw"
+  CTCF: "test_data/bigwigs/astrocyte_CTCF_chr21.bw"
+  create_bed_files: True
+    
+
+
+###################################################################################################################
+###################################################################################################################
+### Remove blacklist params
+remove_blacklist: 
+    genome: "hg38"
+    
+
+compute_matrix_extra:
+    referencePoint: "center"
+    b: 2000
+    a: 2000
+    sortRegions: "keep"
+    
+
+###################################################################################################################
+###################################################################################################################
+# plot parameters
+metaplot:
+    title: "'Chromatin marks at open chromatin sites (+/- 2kb)'"
+    upper_threshold: "auto" # or can be an integer value
+
+
+###################################################################################################################
+###################################################################################################################
+### Cluster regulatory elements params
+compute_matrix_bigwigs_extra:
+    bed_extra: "none" #specify 'none' if no peak
+    bigwig_extra: "none" #specify 'none' if no bigwig
+    tag_extra_data_input: "EXTRA"
+    threshold: 0.5
+
+###################################################################################################################
+###################################################################################################################
+### REgulamentary threshold
+thresholdPeaks: 0.5

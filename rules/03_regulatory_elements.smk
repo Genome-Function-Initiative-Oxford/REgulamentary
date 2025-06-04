@@ -132,27 +132,45 @@ rule intersect_active_elements:
 #         """
 
 
-# add read_count4normalisation for extra bam
-rule read_count4normalisation:
-    input:
-        # sort_union = config["analysis_name"]+os.sep+"{folder}/04_sort_regions/sort_union.bed",
-        bamH3K4me1 = config["multicoverages"]["bam_H3K4me1"],
-        bamH3K4me3 = config["multicoverages"]["bam_H3K4me3"],
-        bamH3K27ac = config["multicoverages"]["bam_H3K27ac"],
-        bamCTCF = config["multicoverages"]["bam_CTCF"],
-    output:
-        config["analysis_name"]+os.sep+"{folder}/07_read_count/read_count.csv",
-    params:
-        extra = "-c -q 30", #"-c -q 30 -F 3844",
-        tmp_file = config["analysis_name"]+os.sep+"{folder}/07_read_count/tmp_read_count.csv"
-    shell:
-        """
-            samtools view {params.extra} {input.bamH3K4me1} > {params.tmp_file}
-            samtools view {params.extra} {input.bamH3K4me3} >> {params.tmp_file}
-            samtools view {params.extra} {input.bamH3K27ac} >> {params.tmp_file}
-            samtools view {params.extra} {input.bamCTCF} >> {params.tmp_file}
-            mv {params.tmp_file} {output}
-        """
+
+if config.get("bigwigs"):
+    #givea a total pesudo read count for each bigwig file
+    rule read_count4normalisation_from_bed:
+        input:
+            config["bigwigs"]["H3K4me1"],
+            config["bigwigs"]["H3K4me3"],
+            config["bigwigs"]["H3K27ac"],
+            config["bigwigs"]["CTCF"],
+        output:
+            expand(config["analysis_name"]+os.sep+"{folder}/07_read_count/read_count.csv", 
+               folder=["ATAC", "CTCF", "merge"])
+        shell:
+            """
+                python scripts/05_pseudo_read_count_bw.py {output} {input}
+            """
+    
+else:
+    # add read_count4normalisation for extra bam
+    rule read_count4normalisation:
+        input:
+            # sort_union = config["analysis_name"]+os.sep+"{folder}/04_sort_regions/sort_union.bed",
+            bamH3K4me1 = config["multicoverages"]["bam_H3K4me1"],
+            bamH3K4me3 = config["multicoverages"]["bam_H3K4me3"],
+            bamH3K27ac = config["multicoverages"]["bam_H3K27ac"],
+            bamCTCF = config["multicoverages"]["bam_CTCF"],
+        output:
+            config["analysis_name"]+os.sep+"{folder}/07_read_count/read_count.csv",
+        params:
+            extra = "-c -q 30", #"-c -q 30 -F 3844",
+            tmp_file = config["analysis_name"]+os.sep+"{folder}/07_read_count/tmp_read_count.csv"
+        shell:
+            """
+                samtools view {params.extra} {input.bamH3K4me1} > {params.tmp_file}
+                samtools view {params.extra} {input.bamH3K4me3} >> {params.tmp_file}
+                samtools view {params.extra} {input.bamH3K27ac} >> {params.tmp_file}
+                samtools view {params.extra} {input.bamCTCF} >> {params.tmp_file}
+                mv {params.tmp_file} {output}
+            """
 
 
 rule mlv_regulatory_elements:
@@ -163,10 +181,10 @@ rule mlv_regulatory_elements:
         H3K4me3_peaks = config["union_peaks"]["bed_H3K4me3"],
         H3K27ac_peaks = config["union_peaks"]["bed_H3K27ac"],
         CTCF_peaks = config["union_peaks"]["bed_CTCF"],
-        H3K4me1_bw = config["compute_matrix_bigwigs"]["bigwig_H3K4me1"],
-        H3K4me3_bw = config["compute_matrix_bigwigs"]["bigwig_H3K4me3"],
-        H3K27ac_bw = config["compute_matrix_bigwigs"]["bigwig_H3K27ac"],
-        CTCF_bw = config["compute_matrix_bigwigs"]["bigwig_CTCF"],
+        H3K4me1_bw = lambda w: config["bigwigs"]["H3K4me1"] if use_defined_bw else config["compute_matrix_bigwigs"]["bigwig_H3K4me1"],
+        H3K4me3_bw = lambda w: config["bigwigs"]["H3K4me3"] if use_defined_bw else config["compute_matrix_bigwigs"]["bigwig_H3K4me3"],
+        H3K27ac_bw = lambda w: config["bigwigs"]["H3K27ac"] if use_defined_bw else config["compute_matrix_bigwigs"]["bigwig_H3K27ac"],
+        CTCF_bw = lambda w: config["bigwigs"]["CTCF"] if use_defined_bw else config["compute_matrix_bigwigs"]["bigwig_CTCF"],
         norm = config["analysis_name"]+os.sep+"{folder}/07_read_count/read_count.csv",
     output:
         config["analysis_name"]+os.sep+"{folder}/08_REgulamentary/mlv_REgulamentary.csv",
