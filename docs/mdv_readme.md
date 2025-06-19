@@ -22,6 +22,7 @@ The following Python code will create an MDV project from the output of the [reg
 
 ```python
 from mdvtools.conversions import create_regulamentary_project_from_pipeline
+from mdvtools.serverlite import serve_project
 
 p = create_regulamentary_project_from_pipeline(
     # 1. Path for the MDV Project folder (created if it doesn't exist)
@@ -34,7 +35,7 @@ p = create_regulamentary_project_from_pipeline(
     atac_bw="input/bigwigs/astrocyte_DNase_chr21.bw"
 )
 p.set_editable(True)
-p.serve()
+serve_project(p)
 ```
 
 This will generate a visualization and launch a local server on port **5050**.  
@@ -63,13 +64,19 @@ To visualize an existing MDV project:
 
 ```python
 from mdvtools.mdvproject import MDVProject
+from mdvtools.serverlite import serve_project
 
 p = MDVProject("/path/to/myproject")
-p.serve()
-```
+server_project(p)
 
+```
 By default, the local server runs on port 5050 (can be changed using the `port` parameter).  
 Open your browser to [http://localhost:5050](http://localhost:5050).
+
+You can also visualise a project at the command line with:-
+```
+python -m mdvtools.serverlite /path/to/project
+```
 
 **Default view:**  
 - A table with regulatory element data  
